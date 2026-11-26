@@ -1,0 +1,891 @@
+:root {
+  --bg-dark: #070811;
+  --panel-bg: rgba(12, 15, 29, 0.82);
+  --panel-border: rgba(255, 255, 255, 0.14);
+  --neon-pink: #ff2e93;
+  --neon-cyan: #00f0ff;
+  --neon-gold: #ffd166;
+  --hp-green: #2ee59d;
+  --armor-blue: #38bdf8;
+  --danger-red: #ff3b5c;
+  --text-main: #f4f7ff;
+  --text-muted: #a6b0cf;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: "Rajdhani", "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#gmaps-3d-wrap {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+}
+
+#gmaps-3d-wrap gmp-map-3d {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#game-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+#game-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Overlay Screens (Start & Game Over) */
+.overlay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 46, 147, 0.24), transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(0, 240, 255, 0.2), transparent 45%),
+    rgba(6, 7, 16, 0.88);
+  backdrop-filter: blur(10px);
+}
+
+.start-card,
+.gameover-box {
+  width: 100%;
+  max-width: 720px;
+  padding: 36px 34px;
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(16, 20, 38, 0.94), rgba(9, 11, 22, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.65),
+    0 0 36px rgba(255, 46, 147, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  text-align: center;
+}
+
+.korean-sub {
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.55);
+  margin-bottom: 10px;
+}
+
+.game-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(2.1rem, 5vw, 3.35rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  color: #ffffff;
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.25);
+  margin-bottom: 14px;
+}
+
+.game-title span {
+  color: var(--neon-pink);
+  text-shadow:
+    0 0 14px rgba(255, 46, 147, 0.8),
+    0 0 32px rgba(255, 46, 147, 0.45);
+}
+
+.game-desc {
+  max-width: 580px;
+  margin: 0 auto 24px;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  margin-bottom: 26px;
+  text-align: left;
+}
+
+.ctrl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.95rem;
+}
+
+.ctrl-item kbd {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 240, 255, 0.14);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: var(--neon-cyan);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ctrl-item span {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 36px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--neon-pink), #8b5cf6);
+  box-shadow:
+    0 10px 28px rgba(255, 46, 147, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow:
+    0 14px 34px rgba(255, 46, 147, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.primary-btn:active {
+  transform: translateY(0);
+}
+
+.tip-note {
+  margin-top: 16px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+/* Game Over Box */
+.gameover-box {
+  max-width: 460px;
+}
+
+#gameover-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: var(--danger-red);
+  text-shadow: 0 0 24px rgba(255, 59, 92, 0.7);
+  margin-bottom: 10px;
+}
+
+#gameover-desc {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* In-Game HUD */
+#hud {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* Top-Right HUD */
+#hud-top-right {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  width: 240px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.hud-row.top-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+#hud-time {
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.wanted-stars {
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--neon-gold);
+  text-shadow: 0 0 10px rgba(255, 209, 102, 0.6);
+}
+
+#hud-cash {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--hp-green);
+  text-shadow: 0 0 12px rgba(46, 229, 157, 0.4);
+  margin-bottom: 10px;
+}
+
+.bars-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar-label {
+  width: 24px;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.bar-track {
+  flex: 1;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.bar-fill.hp {
+  background: linear-gradient(90deg, #16a34a, var(--hp-green));
+}
+
+.bar-fill.armor {
+  background: linear-gradient(90deg, #0284c7, var(--armor-blue));
+}
+
+#weapon-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#weapon-name {
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+}
+
+#weapon-ammo {
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Mission Box (Top-Left) */
+#hud-mission-box {
+  position: absolute;
+  top: 20px;
+  left: 22px;
+  max-width: 300px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--panel-bg);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  border-left: 4px solid var(--neon-gold);
+  backdrop-filter: blur(8px);
+}
+
+.mission-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--neon-gold);
+  margin-bottom: 2px;
+}
+
+#mission-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+#mission-objective {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+#mission-timer {
+  margin-top: 6px;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--neon-pink);
+}
+
+/* Crosshair & Prompts */
+#crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+}
+
+#interaction-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 135px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(10, 12, 24, 0.86);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  color: var(--neon-cyan);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+#center-banner {
+  position: absolute;
+  top: 26%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 18px 34px;
+  border-radius: 14px;
+  background: rgba(10, 12, 24, 0.88);
+  border: 1px solid rgba(255, 209, 102, 0.5);
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+#banner-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--neon-gold);
+  text-shadow: 0 0 18px rgba(255, 209, 102, 0.55);
+}
+
+#banner-sub {
+  margin-top: 4px;
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--hp-green);
+}
+
+/* Minimap (Bottom-Left) */
+#minimap-wrap {
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+  padding: 6px;
+  border-radius: 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+#minimap {
+  display: block;
+  width: 190px;
+  height: 190px;
+  border-radius: 10px;
+  background: #0d1324;
+}
+
+#city-badge {
+  margin-top: 6px;
+  text-align: center;
+  font-family: "Orbitron", "Noto Sans KR", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--neon-pink);
+  text-shadow: 0 0 10px rgba(255, 46, 147, 0.45);
+}
+
+#district-label {
+  margin-top: 2px;
+  text-align: center;
+  font-family: "Noto Sans KR", "Orbitron", sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--neon-cyan);
+}
+
+/* Bottom-Right Speedometer & Radio */
+#hud-bottom-right {
+  position: absolute;
+  bottom: 22px;
+  right: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+#speedo-box {
+  min-width: 165px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  text-align: right;
+  backdrop-filter: blur(8px);
+}
+
+#speed-val {
+  font-family: "Orbitron", sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.speed-unit {
+  margin-left: 4px;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--neon-pink);
+}
+
+#vehicle-label {
+  margin-top: 2px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+#radio-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neon-pink);
+  box-shadow: 0 0 10px var(--neon-pink);
+}
+
+/* Controls Toast & Help Panel */
+#controls-toast {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(10, 12, 24, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+#controls-toast span {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+#help-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 380px);
+  padding: 20px 22px;
+  border-radius: 16px;
+  background: rgba(10, 13, 27, 0.94);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(10px);
+}
+
+#help-panel h4 {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  color: var(--neon-cyan);
+  margin-bottom: 12px;
+}
+
+#help-panel div {
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+#help-panel b {
+  color: var(--text-main);
+}
+
+@media (max-width: 640px) {
+  .controls-grid,
+  .travel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .start-card,
+  .travel-card {
+    padding: 24px 18px;
+  }
+
+  #controls-toast {
+    display: none;
+  }
+}
+
+/* Intercity Travel Modal */
+.travel-card {
+  width: 100%;
+  max-width: 780px;
+  padding: 30px 30px 26px;
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(16, 20, 38, 0.96), rgba(9, 11, 22, 0.98));
+  border: 1px solid rgba(0, 240, 255, 0.28);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(0, 240, 255, 0.16);
+  text-align: center;
+}
+
+.travel-title {
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.travel-desc {
+  font-size: 0.98rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.travel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.city-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 15px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  color: var(--text-main);
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+  text-align: left;
+}
+
+.city-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--neon-cyan);
+}
+
+.city-card.active {
+  border-color: var(--neon-pink);
+  background: rgba(255, 46, 147, 0.12);
+  cursor: default;
+}
+
+.city-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.city-card-name {
+  font-family: "Orbitron", "Noto Sans KR", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.city-card-tag {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(0, 240, 255, 0.16);
+  color: var(--neon-cyan);
+}
+
+.city-card.active .city-card-tag {
+  background: rgba(255, 46, 147, 0.25);
+  color: var(--neon-pink);
+}
+
+.city-card-kr {
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 0.84rem;
+  color: var(--neon-gold);
+}
+
+.city-card-desc {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.city-card-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--hp-green);
+}
+
+.travel-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.secondary-btn {
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  font-family: "Orbitron", "Rajdhani", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* City Arrival Transition */
+#travel-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(16, 22, 48, 0.94), rgba(5, 7, 15, 0.98));
+  pointer-events: all;
+}
+
+.transition-inner {
+  text-align: center;
+  padding: 28px 44px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  background: rgba(12, 16, 32, 0.85);
+  box-shadow: 0 0 50px rgba(0, 240, 255, 0.22);
+}
+
+#gmaps-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+#gmaps-pill.active {
+  border-color: var(--hp-green);
+  color: var(--hp-green);
+  box-shadow: 0 0 14px rgba(46, 229, 157, 0.28);
+}
+
+.gmaps-card {
+  max-width: 620px;
+}
+
+.gmaps-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  margin-bottom: 14px;
+}
+
+.gmaps-form label {
+  font-size: 0.92rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.gmaps-form input[type="password"],
+.gmaps-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(8, 11, 22, 0.9);
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.gmaps-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.gmaps-row select {
+  width: auto;
+  min-width: 210px;
+}
+
+.gmaps-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.gmaps-status {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+}
+
+.gmaps-help {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.gmaps-help a {
+  color: var(--neon-cyan);
+  text-decoration: underline;
+}
+
+.gmaps-actions {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#transition-mode {
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.24em;
+  color: var(--neon-cyan);
+  margin-bottom: 8px;
+}
+
+#transition-city {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  text-shadow: 0 0 24px rgba(255, 46, 147, 0.7);
+}
+
+#transition-sub {
+  margin-top: 6px;
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 1rem;
+  color: var(--neon-gold);
+}

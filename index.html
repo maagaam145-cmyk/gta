@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEOUL VICE 3D — South Korea Open World</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="./global.css" />
+  <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+</head>
+<body>
+  <div id="gmaps-3d-wrap" class="hidden"></div>
+  <div id="game-container"></div>
+
+  <!-- Start / Title Screen -->
+  <div id="start-screen" class="overlay-screen">
+    <div class="start-card">
+      <div class="korean-sub">대한민국 서울 오픈월드 액션</div>
+      <h1 class="game-title">SEOUL <span>VICE</span> 3D</h1>
+      <p class="game-desc">
+        Намсан цамхаг, Ганнам, Мёндун, Хан мөрнийг хамарсан 3D Сөүл хотод
+        машин хулгайлж, даалгавар биелүүлж, цагдаагийн мөрдөлтөөс зугтаарай.
+      </p>
+
+      <div class="controls-grid">
+        <div class="ctrl-item"><kbd>W A S D</kbd><span>Алхах / Жолоодох</span></div>
+        <div class="ctrl-item"><kbd>Mouse</kbd><span>Камер эргүүлэх</span></div>
+        <div class="ctrl-item"><kbd>F</kbd><span>Машинд суух / буух</span></div>
+        <div class="ctrl-item"><kbd>E</kbd><span>Барилга руу орох / гарах</span></div>
+        <div class="ctrl-item"><kbd>Click</kbd><span>Буудах / Цохих</span></div>
+        <div class="ctrl-item"><kbd>Shift</kbd><span>Гүйх / Нитро Boost</span></div>
+        <div class="ctrl-item"><kbd>Space</kbd><span>Үсрэх / Гар тоормос</span></div>
+        <div class="ctrl-item"><kbd>1 2 3</kbd><span>Зэвсэг солих</span></div>
+        <div class="ctrl-item"><kbd>T</kbd><span>Өөр хот руу явах</span></div>
+        <div class="ctrl-item"><kbd>R</kbd> / <kbd>M</kbd><span>Сум цэнэглэх / Радио</span></div>
+      </div>
+
+      <button id="start-btn" class="primary-btn">ТОГЛООМ ЭХЛҮҮЛЭХ</button>
+      <div class="tip-note">Эхлүүлсний дараа дэлгэц дээр дарж хулганаар камераа удирдана уу (ESC — суллах)</div>
+    </div>
+  </div>
+
+  <!-- In-Game GTA HUD -->
+  <div id="hud" class="hidden">
+    <div id="hud-top-right">
+      <div class="hud-row top-meta">
+        <span id="hud-time">21:30</span>
+        <span id="hud-wanted" class="wanted-stars">☆☆☆☆☆</span>
+      </div>
+      <div id="hud-cash">₩ 50,000</div>
+
+      <div class="bars-wrap">
+        <div class="stat-bar">
+          <span class="bar-label">HP</span>
+          <div class="bar-track"><div id="hp-fill" class="bar-fill hp"></div></div>
+        </div>
+        <div class="stat-bar">
+          <span class="bar-label">AR</span>
+          <div class="bar-track"><div id="armor-fill" class="bar-fill armor"></div></div>
+        </div>
+      </div>
+
+      <div id="weapon-box">
+        <div id="weapon-name">FIST</div>
+        <div id="weapon-ammo">∞</div>
+      </div>
+    </div>
+
+    <div id="hud-mission-box" class="hidden">
+      <div class="mission-badge" id="mission-badge">ДААЛГАВАР</div>
+      <div id="mission-title">Gangnam Express</div>
+      <div id="mission-objective">Шар цэг рүү оч</div>
+      <div id="mission-timer" class="hidden">01:30</div>
+    </div>
+
+    <div id="crosshair">+</div>
+    <div id="interaction-prompt" class="hidden">[F] Машинд суух</div>
+    <div id="center-banner" class="hidden">
+      <div id="banner-title">ДААЛГАВАР БИЕЛЛЭЭ!</div>
+      <div id="banner-sub">+ ₩ 150,000</div>
+    </div>
+
+    <div id="minimap-wrap">
+      <canvas id="minimap" width="190" height="190"></canvas>
+      <div id="city-badge">서울 SEOUL</div>
+      <div id="district-label">명동 MYEONGDONG</div>
+    </div>
+
+    <div id="hud-bottom-right">
+      <div id="speedo-box" class="hidden">
+        <span id="speed-val">0</span>
+        <span class="speed-unit">KM/H</span>
+        <div id="vehicle-label">SEOUL TAXI</div>
+      </div>
+      <div id="radio-box">
+        <span class="radio-dot"></span>
+        <span id="radio-status">SEOUL FM • ON [M]</span>
+      </div>
+      <div id="gmaps-pill">GMAPS 3D: OFF [K]</div>
+    </div>
+
+    <div id="controls-toast">
+      <span>[K] Google Maps 3D</span> • <span>[E] Барилга орох</span> • <span>[T] Өөр хот</span> • <span>[F] Машин</span> • <span>[H] Тусламж</span>
+    </div>
+    <div id="help-panel" class="hidden">
+      <h4>УДИРДЛАГА</h4>
+      <div><b>W A S D</b>: Хөдлөх / Жолоодох</div>
+      <div><b>Shift</b>: Гүйх / Турбо</div>
+      <div><b>Space</b>: Үсрэх / Drift</div>
+      <div><b>K</b>: Google Maps 3D барилга холбох</div>
+      <div><b>B</b>: Тоглоомын барилга нуух / харуулах</div>
+      <div><b>E</b>: Барилга руу орох / гарах</div>
+      <div><b>G</b>: Дэлгүүр, кафе дотор үйлчлүүлэх</div>
+      <div><b>F</b>: Машин авах / гарах</div>
+      <div><b>T</b>: Өөр хот руу зорчих (KTX / Нисэх / Автозам)</div>
+      <div><b>Left Click</b>: Цохих / Буудах</div>
+      <div><b>1 / 2 / 3</b>: Нударга / Гар буу / SMG</div>
+      <div><b>R</b>: Сум цэнэглэх</div>
+      <div><b>C</b>: Камерын өнцөг солих</div>
+      <div><b>M</b>: Дуу / Радио асаах-унтраах</div>
+    </div>
+  </div>
+
+  <!-- Intercity Travel Modal -->
+  <div id="travel-modal" class="overlay-screen hidden">
+    <div class="travel-card">
+      <div class="korean-sub">KTX • EXPRESSWAY • AIRPORT • FERRY</div>
+      <h2 class="travel-title">ӨӨР ХОТ РУУ ЗОРЧИХ</h2>
+      <p class="travel-desc">Очих хотоо сонгоно уу. Хот бүр өөрийн зам, барилга, далайн эрэг, замын хөдөлгөөн, иргэдийн амьдралын хэмнэлтэй.</p>
+      <div id="travel-city-grid" class="travel-grid"></div>
+      <div class="travel-actions">
+        <button id="travel-close-btn" class="secondary-btn">БУЦАХ [ESC / T]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Maps 3D Modal -->
+  <div id="gmaps-modal" class="overlay-screen hidden">
+    <div class="travel-card gmaps-card">
+      <div class="korean-sub">GOOGLE MAPS PLATFORM • PHOTOREALISTIC 3D</div>
+      <h2 class="travel-title">GOOGLE MAPS 3D БАРИЛГА ХОЛБОХ</h2>
+      <p class="travel-desc">
+        Сөүл, Бусан, Инчеон, Жэжүгийн бодит 3D газрын зураг болон барилгуудыг <b>Maps JavaScript API (maps3d)</b> ашиглан холбоно.
+      </p>
+      <div class="gmaps-form">
+        <label for="gmaps-api-key-input">Google Maps API Key (эсвэл үнэгүй Maps Demo Key):</label>
+        <input id="gmaps-api-key-input" type="password" placeholder="AIza..." autocomplete="off" />
+        <div class="gmaps-row">
+          <label class="gmaps-check"><input id="gmaps-hide-proc" type="checkbox" checked /> Зөвхөн Google Maps 3D барилга харуулах ([B])</label>
+          <select id="gmaps-mode-select">
+            <option value="hybrid">Hybrid (Зам + Шошго)</option>
+            <option value="satellite">Satellite (Зөвхөн сансрын зураг)</option>
+          </select>
+        </div>
+        <div id="gmaps-status-text" class="gmaps-status">Төлөв: API Key оруулаагүй байна</div>
+      </div>
+      <div class="gmaps-help">
+        Үнэгүй туршилтын түлхүүр авах: <a href="https://mapsplatform.google.com/maps-demo-key?utm_campaign=gmp_git_agentskills_v1" target="_blank" rel="noopener">Maps Demo Key</a> •
+        Production түлхүүр: <a href="https://console.cloud.google.com/google/maps-apis/credentials?utm_campaign=gmp_git_agentskills_v1" target="_blank" rel="noopener">Google Cloud Console</a>
+      </div>
+      <div class="travel-actions gmaps-actions">
+        <button id="gmaps-connect-btn" class="primary-btn">ХОЛБОХ</button>
+        <button id="gmaps-disable-btn" class="secondary-btn">УНТРААХ</button>
+        <button id="gmaps-close-btn" class="secondary-btn">БУЦАХ [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- City Arrival Transition Banner -->
+  <div id="travel-transition" class="hidden">
+    <div class="transition-inner">
+      <div id="transition-mode">KTX EXPRESS</div>
+      <div id="transition-city">BUSAN</div>
+      <div id="transition-sub">부산 광안리 • 해운대</div>
+    </div>
+  </div>
+
+  <!-- Wasted / Busted Screen -->
+  <div id="gameover-screen" class="overlay-screen hidden">
+    <div class="gameover-box">
+      <h2 id="gameover-title">WASTED</h2>
+      <p id="gameover-desc">Эмнэлгийн төлбөрт ₩ 15,000 хасагдлаа.</p>
+      <button id="respawn-btn" class="primary-btn">ДАХИН ТӨРӨХ</button>
+    </div>
+  </div>
+
+  <script defer src="./src/constants.js"></script>
+  <script defer src="./src/textures.js"></script>
+  <script defer src="./src/audio.js"></script>
+  <script defer src="./src/google-maps.js"></script>
+  <script defer src="./src/world.js"></script>
+  <script defer src="./src/vehicles.js"></script>
+  <script defer src="./src/entities.js"></script>
+  <script defer src="./src/missions.js"></script>
+  <script defer src="./src/hud.js"></script>
+  <script defer src="./src/main.js"></script>
+</body>
+</html>
